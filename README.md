@@ -1,1 +1,2 @@
 #url_monitor
+我是将mysql中url的id字段存放到redis中，更具id更新检测失败次数，然后做出判断是否发送报警
