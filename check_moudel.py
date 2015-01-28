@@ -6,6 +6,7 @@ import pycurl
 import StringIO
 import smtplib  
 import socket
+import json
 from email.mime.text import MIMEText 
 #reload(sys)
 #sys.setdefaultencoding('utf-8')
@@ -18,22 +19,41 @@ class Monitor:
                 c.setopt(c.URL, url)
                 c.setopt(pycurl.CONNECTTIMEOUT, 20) 
                 c.setopt(pycurl.TIMEOUT, 20) 
-                c.setopt(pycurl.NOPROGRESS, 1) 
-                c.setopt(pycurl.FORBID_REUSE, 1)
-                c.setopt(pycurl.MAXREDIRS, 1)
+                #c.setopt(pycurl.NOPROGRESS, 1) 
+                #c.setopt(pycurl.FORBID_REUSE, 1)
+                #c.setopt(pycurl.MAXREDIRS, 1)
                 c.setopt(pycurl.DNS_CACHE_TIMEOUT, 30)
-                http_code = c.getinfo(pycurl.HTTP_CODE)
 
                 try:
                         c.perform()
-                        html=eval(b.getvalue())
-                        if int(html["status"]) == 200:
-                                return 0
+                        http_code = c.getinfo(pycurl.HTTP_CODE)
+                        html=json.loads(b.getvalue())
+                        if isinstance(html,list):
+                                if http_code == 200:
+                                        return 0
+                                else:
+                                        return 1
+                        elif isinstance(html,dict):
+                                if http_code == 200 and "status" in html.keys() and html["status"] == 200: #api mvms组监控条件
+                                        return 0
+                                elif http_code == 200 and "response" in html.keys() and html["response"]["numFound"] > 0: #search组
+                                        print "search"
+                                        return 0
+                                elif http_code == 200: #不根据返回值字段的监控
+                                        return 0
+                                else:
+                                        return 1
                         else:
                                 return 1
                         c.close()
                 except Exception, e:
-                        print "connection error:" + str(e)
+                        http_code = c.getinfo(pycurl.HTTP_CODE)
+                        if http_code == 200:  #返回值不是json串的监控
+                                return 0
+                        elif http_code != 200:
+                                return 1
+                        else:
+                                print "connection error:" + str(e)
                         c.close()
 
         def check_port(self,ip,port):
@@ -63,6 +83,5 @@ class Monitor:
                 except Exception, e:  
                     return False
 
-#只用到url，port后期会加上
 if __name__ == "__main__":
         print "This is a moudel..."
