@@ -43,6 +43,7 @@ Group:  %s
 检测失败超过3次,尽快检查以免影响服务。。  
 ''' %(result[0][1],result[0][2])
                                                 m.send_mail('URL检测失败',user[0],content)
+                                                m.send_sms(user[1],content)
                                         r.redis_insert(result[0][0])
 #                       queue.task_done()
 
