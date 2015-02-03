@@ -83,5 +83,33 @@ class Monitor:
                 except Exception, e:  
                     return False
 
+        def send_sms(self,phone,content):
+                time = time.strftime("%Y%m%d%H%M%S", time.localtime())
+                appid = "100190"
+                key = "20140701104400402SMSPLATACCESS00" #验证key
+                priority = 3
+                m = hashlib.md5()
+                m.update(appid + phone + content + time + key)  #enc验证 需要appid 手机
+                md5 = m.hexdigest().encode('utf-8')           #将enc验证编码改为utf-8
+                content1 = urllib.quote(sys.argv[3].encode('utf-8','replace'))  #将中文内容改为url编码
+
+                URL = "http://demo.test.com/WLS/smsaccess/mt?appid=100190&destnumber=%s&content=%s&enc=%s&timestamp=%s&linkid=0&priority=3&tailsp=" %(phone,c
+ontent1,md5,time)
+
+                c = pycurl.Curl()
+                b = StringIO.StringIO()
+                c.setopt(pycurl.WRITEFUNCTION, b.write)
+                c.setopt(c.URL, URL)
+                c.setopt(pycurl.TIMEOUT, 5)
+                c.setopt(pycurl.NOPROGRESS, 1)
+                c.setopt(pycurl.FORBID_REUSE, 1)
+                c.setopt(pycurl.DNS_CACHE_TIMEOUT, 30)
+
+                try:
+                        c.perform()
+                        html=b.getvalue()
+                except Exception,e:
+                        c.close()
+
 if __name__ == "__main__":
         print "This is a moudel..."
