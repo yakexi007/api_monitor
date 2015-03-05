@@ -38,7 +38,7 @@ class mysql_select:
 
         def user_select(self,user):
                 result = []
-                for x in user.split(','):
+                for x in user.split(','): #根据逗号分割人名，然后去user表中查出emai和电话 存入list中  传给发送邮件和短信的模块
                         sql = "select email,phone from url_userinfo where xm = '%s';" %x
                         cur.execute(sql)
                         info = cur.fetchall()
