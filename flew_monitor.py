@@ -1,54 +1,58 @@
 #!/usr/bin/env  python
+# -*- coding: utf-8 -*-
+
 import time
-import redis
-import MySQLdb
+from db import *
+from check_moudel import *
+import time,random
+from threading import Thread,Condition
+from Queue import Queue
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
-r = redis.Redis(host='10.16.48.81',port=6379)
-conn = MySQLdb.connect(host='10.16.48.81',user='root',passwd='123',db='weblog',port=3306)
-cur = conn.cursor()
+m = Monitor()
+r = redis_count()
+c = mysql_select()
+queue = Queue()
+a = c.url_select()
 
-def NetInfo(dev):
-    netdev = file('/proc/net/dev')
-    netInfo = netdev.readlines()
-    netdev.close()
-    for line in netInfo:
-        if line.lstrip().startswith(dev):
-            line = line.replace(':', ' ')
-            items = line.split()
-            netin0 = long(items[1])
-            netout0 = long(items[len(items)/2 + 1])
-
-    return netin0,netout0
+class ProducerThread(Thread):
+        def run(self):
+                global queue
+                for x in a:
+                        l = []
+                        l.append(x)
+                        l.append(m.check_url(x))  #从数据库中查到的url信息 传给检测函数
+                        queue.put(l)   #将url信息 和 检测信息放入队列中
 
 
-def net(dev):
-    net_list = []
+class ConsumerThread(Thread):
+        def run(self):
+                global queue
+                for x in a:
+                        result = queue.get()
+                        #print result
+                        if result[1] == 0: #判断检测状态  0正常  1检测失败
+                                r.redis_modify(result[0][0])
+                                continue
+                        else:
+                                if r.redis_select(result[0][0]) < 3:
+                                        r.redis_insert(result[0][0])
+                                else:
+                                        if result[0][4] == 'on':
+                                                for user in c.user_select(result[0][2]):
+                                                        content = '''Group:  %s   URL :  %s  检测失败''' %(result[0][2],result[0][3])
+                                                        m.send_mail('URL检测失败',user[0],content)
+                                                        m.send_sms(user[1],content)
+                                                        #m.send_sms('18610941029',content)
+                                                c.update_time(result[0][0])
+                                                r.redis_insert(result[0][0])
+                                        else:
+                                                r.redis_insert(result[0][0])
+                                                continue
+#                       queue.task_done()
 
-    netin0,netout0 = NetInfo(dev)
-    time.sleep(0.995)
-    netin1,netout1 = NetInfo(dev)
-    netin = netin1 - netin0
-    netin = int(netin / 1024 /1024)
 
-    netout = netout1 - netout0
-    netout = int(netout / 1024 /1204)
-
-    net_list.append(netin)
-    net_list.append(netout)
-    return net_list
-
-while 1:
-        data = net('bond0') #需要监控的网卡名
-        #结果写入数据库
-        sql = "insert into logweb_flow_info (nginx_date,nginx_ip,nginx_in,nginx_out) values ('%s','%s','%s','%s')" %(time.strftime('%y%m%d%H%M%S'),'10.10.22.113',data[0],data[1])
-        cur.execute(sql)
-        conn.commit()
-        list = eval(r['flow_113']) #同时存入redis 用于页面数据展示
-        if len(list) < 19:
-                list.append(data)
-                r['flow_113'] = list
-        else:
-                list.pop(0)
-                list.append(data)
-                r['flow_113'] = list
-        time.sleep(10)
+ProducerThread().start()
+#time.sleep(1)
+ConsumerThread().start()
