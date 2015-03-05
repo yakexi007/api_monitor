@@ -66,10 +66,6 @@ class Monitor:
 
         def send_sms(self,phone,content):
                 times = time.strftime("%Y%m%d%H%M%S", time.localtime())
-                with open('sms.txt','a+') as f:
-                        f.write(times + '\n')
-                        f.write(phone + '\n')
-                        f.write(content + '\n' + '\n')
                 appid = "100190"
                 key = "20140701104400402SMSPLATACCESS00" #验证key
                 priority = 3
