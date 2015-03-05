@@ -46,7 +46,7 @@ class ConsumerThread(Thread):
                                                         m.send_sms(user[1],content)
                                                         #m.send_sms('18610941029',content)
                                                 times = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-                                                with open('sms.txt','a+') as f:
+                                                with open('sms.txt','a+') as f:  #记录日志
                                                         f.write(times + '\n')
                                                         f.write(content + '\n' + '\n')
                                                 c.update_time(result[0][0])
