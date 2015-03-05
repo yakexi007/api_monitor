@@ -22,8 +22,8 @@ class ProducerThread(Thread):
                 for x in a:
                         l = []
                         l.append(x)
-                        l.append(m.check_url(x))  #从数据库中查到的url信息 传给检测函数
-                        queue.put(l)   #将url信息 和 检测信息放入队列中
+                        l.append(m.check_url(x))
+                        queue.put(l)
 
 
 class ConsumerThread(Thread):
@@ -31,8 +31,8 @@ class ConsumerThread(Thread):
                 global queue
                 for x in a:
                         result = queue.get()
-                        #print result
-                        if result[1] == 0: #判断检测状态  0正常  1检测失败
+                        print result
+                        if result[1] == 0:
                                 r.redis_modify(result[0][0])
                                 continue
                         else:
@@ -40,7 +40,7 @@ class ConsumerThread(Thread):
                                         r.redis_insert(result[0][0])
                                 else:
                                         if result[0][4] == 'on':
-                                                for user in c.user_select(result[0][2]):
+                                                for user in c.user_select(result[0][8]):
                                                         content = '''Group:  %s   URL :  %s  检测失败''' %(result[0][2],result[0][3])
                                                         m.send_mail('URL检测失败',user[0],content)
                                                         m.send_sms(user[1],content)
@@ -56,3 +56,4 @@ class ConsumerThread(Thread):
 ProducerThread().start()
 #time.sleep(1)
 ConsumerThread().start()
+You have mail in /var/spool/mail/root
