@@ -45,6 +45,10 @@ class ConsumerThread(Thread):
                                                         m.send_mail('URL检测失败',user[0],content)
                                                         m.send_sms(user[1],content)
                                                         #m.send_sms('18610941029',content)
+                                                times = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                                                with open('sms.txt','a+') as f:
+                                                        f.write(times + '\n')
+                                                        f.write(content + '\n' + '\n')
                                                 c.update_time(result[0][0])
                                                 r.redis_insert(result[0][0])
                                         else:
