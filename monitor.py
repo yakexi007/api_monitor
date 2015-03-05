@@ -7,6 +7,8 @@ from check_moudel import *
 import time,random
 from threading import Thread,Condition
 from Queue import Queue
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 m = Monitor()
 r = redis_count()
@@ -20,31 +22,34 @@ class ProducerThread(Thread):
                 for x in a:
                         l = []
                         l.append(x)
-                        l.append(m.check_url(x[2]))
-                        queue.put(l)
+                        l.append(m.check_url(x))  #从数据库中查到的url信息 传给检测函数
+                        queue.put(l)   #将url信息 和 检测信息放入队列中
 
 
 class ConsumerThread(Thread):
         def run(self):
+                global queue
                 for x in a:
                         result = queue.get()
-                        print result
-                        if result[1] == 0:
+                        #print result
+                        if result[1] == 0: #判断检测状态  0正常  1检测失败
                                 r.redis_modify(result[0][0])
                                 continue
                         else:
-                                if r.redis_select('%s' %result[0][0]) < 3:
+                                if r.redis_select(result[0][0]) < 3:
                                         r.redis_insert(result[0][0])
                                 else:
-                                        for user in c.user_select(result[0][1]):
-                                                content = ''' 接口出问题了。。。。
-Group:  %s
- URL :  %s
-检测失败超过3次,尽快检查以免影响服务。。  
-''' %(result[0][1],result[0][2])
-                                                m.send_mail('URL检测失败',user[0],content)
-                                                m.send_sms(user[1],content)
-                                        r.redis_insert(result[0][0])
+                                        if result[0][4] == 'on':
+                                                for user in c.user_select(result[0][2]):
+                                                        content = '''Group:  %s   URL :  %s  检测失败''' %(result[0][2],result[0][3])
+                                                        m.send_mail('URL检测失败',user[0],content)
+                                                        m.send_sms(user[1],content)
+                                                        #m.send_sms('18610941029',content)
+                                                c.update_time(result[0][0])
+                                                r.redis_insert(result[0][0])
+                                        else:
+                                                r.redis_insert(result[0][0])
+                                                continue
 #                       queue.task_done()
 
 
