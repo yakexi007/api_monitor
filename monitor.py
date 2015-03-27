@@ -36,10 +36,10 @@ class ConsumerThread(Thread):
                 if r.redis_select(result[0][0]) >3:
                     for user in c.user_select(result[0][8]):
                         content = '''Group:  %s   URL :  %s  恢复正常''' %(result[0][2],result[0][3])
-                        #m.send_mail('URL恢复正常',user[0],content)
-                        #m.send_sms(user[1],content)
-                    #m.send_sms('18610941029',content)
-                    #m.send_sms('13488852824',content)
+                        m.send_mail('URL恢复正常',user[0],content)
+                        m.send_sms(user[1],content)
+                    m.send_sms('186xxxxxxxx',content)
+                    m.send_sms('134xxxxxxxx',content)
                     r.redis_modify(result[0][0])
                 else:
                     #r.redis_modify(result[0][0])
@@ -51,10 +51,10 @@ class ConsumerThread(Thread):
                     if result[0][4] == 'on':
                         for user in c.user_select(result[0][8]):
                             content = '''Group:  %s   URL :  %s  关键字检测失败''' %(result[0][2],result[0][3])
-                           # m.send_mail('URL检测失败',user[0],content)
-                           # m.send_sms(user[1],content)
-                        #m.send_sms('18610941029',content)
-                        #m.send_sms('13488852824',content)
+                            m.send_mail('URL检测失败',user[0],content)
+                            m.send_sms(user[1],content)
+                        m.send_sms('186xxxxxxxx',content)
+                        m.send_sms('134xxxxxxxx',content)
                         times = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                         with open('sms.txt','a+') as f:
                             f.write(times + '\n')
@@ -70,10 +70,10 @@ class ConsumerThread(Thread):
                     if result[0][4] == 'on':
                         for user in c.user_select(result[0][8]):
                             content = '''Group:  %s   URL :  %s  返回状态码错误''' %(result[0][2],result[0][3])
-                           # m.send_mail('URL检测失败',user[0],content)
-                           # m.send_sms(user[1],content)
-                        #m.send_sms('18610941029',content)
-                        #m.send_sms('13488852824',content)
+                            m.send_mail('URL检测失败',user[0],content)
+                            m.send_sms(user[1],content)
+                        m.send_sms('186xxxxxxxx',content)
+                        m.send_sms('134xxxxxxxx',content)
                         times = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                         with open('sms.txt','a+') as f:
                             f.write(times + '\n')
@@ -89,10 +89,10 @@ class ConsumerThread(Thread):
                     if result[0][4] == 'on':
                         for user in c.user_select(result[0][8]):
                             content = '''Group:  %s   URL :  %s  返回状态码错误''' %(result[0][2],result[0][3])
-                           # m.send_mail('URL检测失败',user[0],content)
-                           # m.send_sms(user[1],content)
-                        #m.send_sms('18610941029',content)
-                        #m.send_sms('13488852824',content)
+                            m.send_mail('URL检测失败',user[0],content)
+                            m.send_sms(user[1],content)
+                        m.send_sms('186xxxxxxxx',content)
+                        m.send_sms('134xxxxxxxx',content)
                         times = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                         with open('sms.txt','a+') as f:
                             f.write(times + '\n')
