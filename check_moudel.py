@@ -4,6 +4,7 @@
 import time
 import pycurl
 import urllib2
+import urllib
 import sys
 import StringIO
 import smtplib  
@@ -15,32 +16,32 @@ from email.mime.text import MIMEText
 #sys.setdefaultencoding('utf-8')
 
 class Monitor:
-        def check_url(self,url):  #传过来的url是一个列表
-                if url[6] != '':    #判断是否添加header  有些url需要通过header传递参数
-                        send_headers = eval("{%s}" %url[6].encode('utf8'))  
-                        #print send_headers
+        def check_url(self,url):
+                if url[6] != '':
+                        send_headers = eval("{%s}" %url[6].encode('utf8'))
                 else:
                         send_headers = {}
                 request = urllib2.Request(url[3],headers=send_headers)
                 try:
+                        #print url[3]
                         response = urllib2.urlopen(request,timeout=5)
                         return_data = response.read()
                         http_code = response.getcode()
-                        if url[7] != '':       #检测是否需要通过关键字判断url状态，如果关键字不为空，判断url返回值中是否包含关键字
-                                if return_data.find(url[7]) > 0:  #如果包含关键字  则url状态正常
+                        if url[7] != '':
+                                if return_data.find(url[7]) > 0:
                                         return 0
                                 else:
                                         return 1
                         else:
-                                if http_code == 200:   #有些url只需通过httpcod判断状态
+                                if http_code == 200:
                                         return 0
                                 else:
-                                        return 1
+                                        return 2
           
-                except urllib2.URLError,e:  #url参数不正确会报错  在这抓取 防止程序运行报错
-                        return 1
+                except urllib2.URLError,e:
+                        return 3
 
-        def check_port(self,x):  #端口检测
+        def check_port(self,x):
                 try:
                         sc=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
                         #设置超时时间（0.0）
@@ -87,8 +88,8 @@ class Monitor:
                 try:
                         c.perform()
                         html=b.getvalue()
+                        print html
                 except Exception,e:
                         c.close()
 if __name__ == "__main__":
-        m = Monitor()
         print "This is a moudel..."
