@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import time
-from db import *
-from check_moudel import *
 import time,random
 from threading import Thread,Condition
 from Queue import Queue
+from db import *
+from check_moudel import *
+from wechat import *
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
