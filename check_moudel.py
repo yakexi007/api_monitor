@@ -67,15 +67,15 @@ class Monitor:
 
         def send_sms(self,phone,content):
                 times = time.strftime("%Y%m%d%H%M%S", time.localtime())
-                appid = "100190"
-                key = "20140701104400402SMSPLATACCESS00" #验证key
+                appid = "xxxxxxx"
+                key = "xxxxxxxxxxx" #验证key
                 priority = 3
                 m = hashlib.md5()
                 m.update(appid + str(phone) + content + times + key)  #enc验证 需要appid 手机
                 md5 = m.hexdigest().encode('utf-8')           #将enc验证编码改为utf-8
                 content1 = urllib.quote(content.encode('utf-8','replace'))  #将中文内容改为url编码
 
-                URL = "http://i.sms.sohu.com/WLS/smsaccess/mt?appid=100190&destnumber=%s&content=%s&enc=%s&timestamp=%s&linkid=0&priority=3&tailsp=" %(str(phone),content1,md5,times)
+                URL = "http://xxxxxxxx/WLS/smsaccess/mt?appid=100190&destnumber=%s&content=%s&enc=%s&timestamp=%s&linkid=0&priority=3&tailsp=" %(str(phone),content1,md5,times)
                 c = pycurl.Curl()
                 b = StringIO.StringIO()
                 c.setopt(pycurl.WRITEFUNCTION, b.write)
