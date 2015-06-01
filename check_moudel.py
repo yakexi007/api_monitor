@@ -17,6 +17,7 @@ from email.mime.text import MIMEText
 
 class Monitor:
 	def check_url(self,url):
+		
 		if url[6] != '':
 			send_headers = eval("{%s}" %url[6].encode('utf8'))
 		else:
