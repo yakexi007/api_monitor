@@ -1,13 +1,12 @@
-FROM centos:centos6  
-MAINTAINER rock zhang "yakexi007@vip.qq.com"  
+image: ubuntu:14.04
+
+services:
+   - mysql
    
-RUN yum install -y mysql-server mysql  
+env:
+   - MYSQL_PORT = tcp://0.0.0.0:3306
+   - MYSQL_PORT_3306_TCP_PROTO = tcp
+   - MYSQL_PORT_3306_TCP_PORT = 3306
    
-RUN /etc/init.d/mysqld start &&\  
-    mysql -e "grant all privileges on *.* to 'root'@'%' identified by 'demo';"&&\  
-    mysql -e "grant all privileges on *.* to 'root'@'localhost' identified by 'demo';"&&\  
-    mysql -u root -pletmein -e "show databases;"  
-   
-EXPOSE 3306  
-   
-CMD ["/usr/bin/mysqld_safe"]
+script：
+   - apt-get install mysql*
