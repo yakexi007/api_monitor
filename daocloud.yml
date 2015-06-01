@@ -8,5 +8,5 @@ env:
    - MYSQL_PORT_3306_TCP_PROTO = tcp
    - MYSQL_PORT_3306_TCP_PORT = 3306
    
-script：
+script:
    - apt-get install mysql*
