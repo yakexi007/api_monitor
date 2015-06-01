@@ -1,0 +1,13 @@
+FROM centos:centos6  
+MAINTAINER rock zhang "yakexi007@vip.qq.com"  
+   
+RUN yum install -y mysql-server mysql  
+   
+RUN /etc/init.d/mysqld start &&\  
+    mysql -e "grant all privileges on *.* to 'root'@'%' identified by 'demo';"&&\  
+    mysql -e "grant all privileges on *.* to 'root'@'localhost' identified by 'demo';"&&\  
+    mysql -u root -pletmein -e "show databases;"  
+   
+EXPOSE 3306  
+   
+CMD ["/usr/bin/mysqld_safe"]
