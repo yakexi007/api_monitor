@@ -15,19 +15,20 @@ class Token(object):
     def __init__(self, corpid, corpsecret):
         self.baseurl = 'https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid={0}&corpsecret={1}'.format(
         corpid,corpsecret)
-        self.expire_time = sys.maxint
+        self.r = redis.Redis(host='10.16.48.81',port=6379) #将token存入redis
+        self.expire_time = eval(self.r['token'])['expires_in']
     def get_token(self):
-        if self.expire_time > time.time():
+        if self.expire_time < int(time.time()): #如果超时时间小于当前时间 重新获取token
             request = urllib2.Request(self.baseurl)
             response = urllib2.urlopen(request)
             ret = response.read().strip()
             ret = json.loads(ret)
-            if 'errcode' in ret.keys():
-                print >> ret['errmsg'], sys.stderr
-                sys.exit(1)
-            self.expire_time = time.time() + ret['expires_in']
-            self.access_token = ret['access_token']
-        return self.access_token
+            ret['expires_in'] += int(time.time())
+            access_token = ret['access_token']
+            self.r['token'] = ret
+            return access_token
+        else:
+            return eval(self.r['token'])['access_token']
 
 def send_msg(title, content):
     # 发送消息
